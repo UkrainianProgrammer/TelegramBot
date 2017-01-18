@@ -15,12 +15,34 @@ message_from_user = latest_upd.message
 print message_from_user
 """
 
+print bot.get_me()
+
+def log(message, answer):
+    print "\n -----------"
+    from datetime import datetime
+    print datetime.now()
+    print "Message from {0} {1}. (id = {2}) \n Text: {3}".format(message.from_user.first_name,
+                                                                 message.from_user.last_name,
+                                                                 str(message.from_user.id),
+                                                                 message.text)
+    print answer
 @bot.message_handler(content_types=["text"])
 def handle_text(message):
+    answer = "sorry, haven't learnt that yet."
     if message.text== "test":
-        bot.send_message(message.chat.id, "privet")
+        answer = "Hi there"
+        log(message, answer)
+        bot.send_message(message.chat.id, answer)
     elif message.text== "not a test":
-        bot.send_message(message.chat.id, "I know that too.")
-    else: bot.send_message(message.chat.id, "sorry, haven't learnt that yet.")
+        answer = "I know that too."
+        log(message, answer)
+        bot.send_message(message.chat.id, answer)
+    elif message.text == "1" or message.text == "2":
+        bot.send_message(message.chat.id, "I received either 1 or 2")
+    elif message.text == "bot, reply" and str(message.from_user.id) == "244646820":
+        bot.send_message(message.chat.id, "id match - yes \nwelcome!")
+    else:
+        bot.send_message(message.chat.id, answer)
+        log(message, answer)
 
 bot.polling(none_stop=True)
