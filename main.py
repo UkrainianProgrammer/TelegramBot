@@ -3,6 +3,9 @@
 
 import telebot
 import config
+import urllib2 as urllib
+from cStringIO import StringIO
+from PIL import Image
 
 bot = telebot.TeleBot(config.token)
 
@@ -44,13 +47,21 @@ def fetch_random():
     #fetch image using xkcd json format
     from random import randint
     id = randint(1, 2000)
+    url = "http://xkcd.com/" + str(id) + "/info.0.json"
+    img_file = urllib.urlopen(url)
+    im = StringIO(img_file.read())
+    img = Image.open(im)
+    return img
+
 
 
 @bot.message_handler(content_types=["text"])
 def handle_text(message):
     #answer = "sorry, haven't learnt that yet."
-    if message.text== "random comic":
+    if message.text == "random comic":
         print("test message")
+        comic = fetch_random()
+        bot.send_message(message.chat.id, comic)
         #answer = "Hi there"
         #log(message, answer)
         #bot.send_message(message.chat.id, answer)
@@ -68,4 +79,4 @@ def handle_text(message):
         log(message, answer)
     """
 
-bot.polling(none_stop=True)
+bot.polling()
