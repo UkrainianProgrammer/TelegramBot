@@ -37,13 +37,23 @@ comic {id} - fetch id specific comic
 additional commands may apply (/start, /help etc.)
 """
 
+def fetch_random():
+    #generate random number
+    #construct url based on random id
+    #fetch image using xkcd json format
+    from random import randint
+    id = randint(1, 2000)
+
+
 @bot.message_handler(content_types=["text"])
 def handle_text(message):
-    answer = "sorry, haven't learnt that yet."
-    if message.text== "test":
-        answer = "Hi there"
-        log(message, answer)
-        bot.send_message(message.chat.id, answer)
+    #answer = "sorry, haven't learnt that yet."
+    if message.text== "random comic":
+        print("test message")
+        #answer = "Hi there"
+        #log(message, answer)
+        #bot.send_message(message.chat.id, answer)
+    """
     elif message.text== "not a test":
         answer = "I know that too."
         log(message, answer)
@@ -55,5 +65,6 @@ def handle_text(message):
     else:
         bot.send_message(message.chat.id, answer)
         log(message, answer)
+    """
 
 bot.polling(none_stop=True)
