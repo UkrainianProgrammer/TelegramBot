@@ -1,4 +1,5 @@
 # Initial version of my script for updater bot
+# must be compiled using Python 2.7.x
 
 import telebot
 import config
