@@ -16,7 +16,7 @@ print message_from_user
 """
 
 print bot.get_me()
-
+"""
 def log(message, answer):
     print "\n -----------"
     from datetime import datetime
@@ -26,6 +26,17 @@ def log(message, answer):
                                                                  str(message.from_user.id),
                                                                  message.text)
     print answer
+
+"""
+
+"""
+will have 2 command that work as text messages:
+random comic - fetch random
+comic {id} - fetch id specific comic
+
+additional commands may apply (/start, /help etc.)
+"""
+
 @bot.message_handler(content_types=["text"])
 def handle_text(message):
     answer = "sorry, haven't learnt that yet."
