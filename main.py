@@ -51,24 +51,44 @@ def fetch_random(message):
     req = requests.get(url)
     json_data = req.json()
     img_url = json_data["img"]
-    comic_info = "Title: {1}"
-    print (comic_info)
-    #bot.send_message(message.from_user.id, comic_info)
+    comic_info = "Title: {0}\nText: {1}".format(json_data["title"], json_data["transcript"])
+    bot.send_message(message.from_user.id, comic_info)
     print (img_url)
     return img_url
 
-
+def fetch_by_id(message, id):
+    url = "http://xkcd.com/" + str(id) + "/info.0.json"
+    req = requests.get(url)
+    json_data = req.json()
+    img_url = json_data["img"]
+    comic_info = "Title: {0}\nText: {1}".format(json_data["title"], json_data["transcript"])
+    bot.send_message(message.from_user.id, comic_info)
+    # print (img_url)
+    return img_url
 
 @bot.message_handler(content_types=["text"])
 def handle_text(message):
     if message.text == "random comic":
         img_url = fetch_random(message)
         cont = requests.get(img_url)
-        img = Image.open(BytesIO(cont.content)).show() # TODO: try download image and then use send_photo routine
+        img = Image.open(BytesIO(cont.content)).show()
         bot.send_chat_action(message.from_user.id, 'upload_photo')
-        #bot.send_photo(message.from_user.id, img)
     else:
-        #TODO: display specific comic
-        print ("Hello\n")
+        # display specific comic
+        # check if text starts with word comic
+        # find comic id
+        # fetch comic
+        if message.text.startswith("comic"):
+            if any(i.isdigit() for i in message.text):
+                id = message.text.split()[1]
+                img_url = fetch_by_id(message, id)
+                cont = requests.get(img_url)
+                img = Image.open(BytesIO(cont.content)).show()
+                bot.send_chat_action(message.from_user.id, 'upload_photo')
+                # bot.send_photo(message.from_user.id, img)
+            else:
+                print ("Error: id is missing\n")
+        else:
+            print ("Error: command is invalid\n")
 
 bot.polling(none_stop=True)
