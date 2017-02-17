@@ -1,12 +1,14 @@
 # Initial version of my script for updater bot
-# must be compiled using Python 2.7.x
+# must be compiled using Python 3.6.x
 
 import telebot
 import config
 #import urllib2 as urllib
-from cStringIO import StringIO
-from PIL import Image
-import urllib, json
+#from cStringIO import StringIO
+#from PIL import Image
+import urllib.request as urllib2, json
+import requests
+from bs4 import BeautifulSoup
 
 bot = telebot.TeleBot(config.token)
 
@@ -20,7 +22,7 @@ message_from_user = latest_upd.message
 print message_from_user
 """
 
-print bot.get_me()
+print (bot.get_me())
 """
 def log(message, answer):
     print "\n -----------"
@@ -44,32 +46,49 @@ additional commands may apply (/start, /help etc.)
 
 
 def fetch_random():
-    #generate random number
-    #construct url based on random id
-    #fetch image using xkcd json format
-    #need to parse json to extract image url
+    from random import randint
+    page = requests.get("https://xkcd.com/{}/".format(randint(1, 1800)))
+    content = page.content
+    soup = BeautifulSoup(content, "html.parser")
+    image_url = soup.find_all("img")[1]["src"]
+    image_url_complete = "https:" + image_url
+    print("https:{}".format(image_url))
+    return (image_url_complete)
+
+    """
+    # generate random number
     from random import randint
     id = randint(1, 2000)
-    print ("id is" + str(id) + "\n")
+    print ("id is " + str(id) + "\n")
+
+    # construct url based on random id
     url = "http://xkcd.com/" + str(id) + "/info.0.json"
-    response = urllib.urlopen(url)
+
+    # fetch image using xkcd json format
+    # need to parse json to extract image url
+    req = urllib2.Request(url)
+    response = urllib2.urlopen(req)
     data = json.loads(response.read())
-    print data
-
-    #return None
-
-
+    #print data
+    img_url = data["img"]
+    print img_url
+    return img_url
+    # return opened image (?)
+"""
 
 @bot.message_handler(content_types=["text"])
 def handle_text(message):
-    #answer = "sorry, haven't learnt that yet."
     if message.text == "random comic":
-        print("test message\n")
-        fetch_random()
-        #bot.send_message(message.chat.id, comic)
-        #answer = "Hi there"
-        #log(message, answer)
-        #bot.send_message(message.chat.id, answer)
+        #context = ssl._create_unverified_context()
+        #print("test message\n")
+        img_url = fetch_random()
+
+        #req = urllib2.Request(img_url)
+        resp = urllib2.urlopen(img_url, 'url_image.png')
+        img = open('url_image.png')
+        bot.send_chat_action(message.from_user.id, 'upload_photo')
+        bot.send_photo(message.from_user.id, img)
+        img.close()
     else:
         print ("Hello\n")
 
