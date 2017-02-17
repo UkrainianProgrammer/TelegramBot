@@ -6,10 +6,11 @@ import config
 #import urllib2 as urllib
 #from StringIO import StringIO
 from PIL import Image
-#import urllib.request as urllib2, json
+#import json
 import requests
 from bs4 import BeautifulSoup
 from io import BytesIO
+#import urllib.request as urllib2
 
 bot = telebot.TeleBot(config.token)
 
@@ -28,7 +29,8 @@ additional commands may apply (/start, /help etc.)
  TODO: finish main commands and write help documentation using BotFather
 """
 
-def fetch_random():
+def fetch_random(message):
+    """
     # fetching comic page
     from random import randint
     page = requests.get("https://xkcd.com/{}/".format(randint(1, 1800)))
@@ -41,16 +43,27 @@ def fetch_random():
     # fixing image url and returning the string
     image_url_complete = "https:" + image_url
     print("https:{}".format(image_url))
-
     return image_url_complete
+    """
+    from random import randint
+    id = randint(1, 1800)
+    url = "http://xkcd.com/" + str(id) + "/info.0.json"
+    req = requests.get(url)
+    json_data = req.json()
+    img_url = json_data["img"]
+    comic_info = "Title: {1}"
+    print (comic_info)
+    #bot.send_message(message.from_user.id, comic_info)
+    print (img_url)
+    return img_url
+
 
 
 @bot.message_handler(content_types=["text"])
 def handle_text(message):
     if message.text == "random comic":
-        img_url = fetch_random()
+        img_url = fetch_random(message)
         cont = requests.get(img_url)
-        #urllib2.urlopen(cont, 'url_image.png')
         img = Image.open(BytesIO(cont.content)).show() # TODO: try download image and then use send_photo routine
         bot.send_chat_action(message.from_user.id, 'upload_photo')
         #bot.send_photo(message.from_user.id, img)
