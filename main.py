@@ -30,49 +30,37 @@ additional commands may apply (/start, /help etc.)
 """
 
 def fetch_random(message):
-    """
-    # fetching comic page
-    from random import randint
-    page = requests.get("https://xkcd.com/{}/".format(randint(1, 1800)))
-
-    # parsing page content and looking for img url
-    content = page.content
-    soup = BeautifulSoup(content, "html.parser")
-    image_url = soup.find_all("img")[1]["src"]
-
-    # fixing image url and returning the string
-    image_url_complete = "https:" + image_url
-    print("https:{}".format(image_url))
-    return image_url_complete
-    """
     from random import randint
     id = randint(1, 1800)
-    url = "http://xkcd.com/" + str(id) + "/info.0.json"
-    req = requests.get(url)
-    json_data = req.json()
-    img_url = json_data["img"]
-    comic_info = "Title: {0}\nText: {1}".format(json_data["title"], json_data["transcript"])
-    bot.send_message(message.from_user.id, comic_info)
-    print (img_url)
-    return img_url
+    return generate_url(message, id)
 
 def fetch_by_id(message, id):
+    return generate_url(message, id)
+
+# routine below will be called in the fetch_... blocks above
+def generate_url(message, id):
     url = "http://xkcd.com/" + str(id) + "/info.0.json"
     req = requests.get(url)
     json_data = req.json()
     img_url = json_data["img"]
     comic_info = "Title: {0}\nText: {1}".format(json_data["title"], json_data["transcript"])
     bot.send_message(message.from_user.id, comic_info)
-    # print (img_url)
+    print(img_url)
     return img_url
 
+# display random or id-specific comic routine called in handle_text
+def display_image(message, img_url):
+    cont = requests.get(img_url)
+    img = Image.open(BytesIO(cont.content)).show()
+    bot.send_chat_action(message.from_user.id, 'upload_photo')
+
+# --------------------------------- #
+# decorators:
 @bot.message_handler(content_types=["text"])
 def handle_text(message):
     if message.text == "random comic":
         img_url = fetch_random(message)
-        cont = requests.get(img_url)
-        img = Image.open(BytesIO(cont.content)).show()
-        bot.send_chat_action(message.from_user.id, 'upload_photo')
+        display_image(message, img_url)
     else:
         # display specific comic
         # check if text starts with word comic
@@ -82,10 +70,7 @@ def handle_text(message):
             if any(i.isdigit() for i in message.text):
                 id = message.text.split()[1]
                 img_url = fetch_by_id(message, id)
-                cont = requests.get(img_url)
-                img = Image.open(BytesIO(cont.content)).show()
-                bot.send_chat_action(message.from_user.id, 'upload_photo')
-                # bot.send_photo(message.from_user.id, img)
+                display_image(message, img_url)
             else:
                 print ("Error: id is missing\n")
         else:
