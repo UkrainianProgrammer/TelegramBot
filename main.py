@@ -28,7 +28,6 @@ additional commands apply (/start, /help)
 
 """
  idea: fetch comic by name (?)
- TODO: finish main commands and write help documentation using BotFather
  TODO: add custom keyboard (!)
 """
 
@@ -45,6 +44,15 @@ def display_image(message, id):
     # construct json url
     url = "http://xkcd.com/" + str(id) + "/info.0.json"
     req = requests.get(url)
+
+    # checking status code to make sure request was successful
+    if req.status_code != 200:
+        print("Error retrieving page.\n")
+        return
+
+    print(req.status_code)
+    print(url)
+
 
     #fetch json file
     json_data = req.json()
@@ -93,7 +101,7 @@ def handle_text(message):
     help_string = "Thank you for using xkcd bot for Telegram.\nUse the following commnds:" \
                   "\nrandom comic - view random comic\n" \
                   "comic {id} - view id-specific comic"
-    bot.send_message(message.chat.id, help_string)
+    bot.send_message(message.from_user.id, help_string)
 
 # all bot commands
 @bot.message_handler(content_types=["text"])
@@ -110,12 +118,15 @@ def handle_text(message):
         if message.text.lower().startswith("comic"):
             if any(i.isdigit() for i in message.text):
                 id = message.text.split()[1]
-                display_image(message, id)
+                if id == "404":
+                    bot.send_message(message.from_user.id, "The comic does not exist.")
+                else:
+                    display_image(message, id)
             else:
-                bot.send_message(message.chat.id, "Please specify id of the comic. For example: comic 45")
+                bot.send_message(message.from_user.id, "Please specify id of the comic. For example: comic 45")
                 #print ("Error: id is missing\n")
         else:
-            bot.send_message(message.chat.id, "Invalid command, please use /help to learn more.")
+            bot.send_message(message.from_user.id, "Invalid command, please use /help to learn more.")
             #print ("Invalid command, please use /help to learn more."\n")
 
 
