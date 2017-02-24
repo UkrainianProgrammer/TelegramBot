@@ -61,7 +61,7 @@ def display_image(message, id):
     # print comic info
     comic_info = "Title: {0}\nComic ID: {1}\nSummary: {2}".format(json_data["title"], json_data["num"],
                                                                     json_data["alt"])
-    bot.send_message(message.from_user.id, comic_info)
+    bot.send_message(message.chat.id, comic_info)
     #print(img_url)
 
     # this is comic image dir
@@ -80,8 +80,8 @@ def display_image(message, id):
 
     # open pic and send it to the app
     img = open(directory + '/' + image, 'rb')
-    bot.send_chat_action(message.from_user.id, "upload_photo")
-    bot.send_photo(message.from_user.id, img)
+    bot.send_chat_action(message.chat.id, "upload_photo")
+    bot.send_photo(message.chat.id, img)
     img.close()
 
     # remove image from server
@@ -101,7 +101,7 @@ def handle_text(message):
     help_string = "Thank you for using xkcd bot for Telegram.\nUse the following commnds:" \
                   "\nrandom comic - view random comic\n" \
                   "comic {id} - view id-specific comic"
-    bot.send_message(message.from_user.id, help_string)
+    bot.send_message(message.chat.id, help_string)
 
 # all bot commands
 @bot.message_handler(content_types=["text"])
@@ -119,15 +119,15 @@ def handle_text(message):
             if any(i.isdigit() for i in message.text):
                 id = message.text.split()[1]
                 if id == "404":
-                    bot.send_message(message.from_user.id, "The comic does not exist.")
+                    bot.send_message(message.chat.id, "The comic does not exist.")
                 else:
                     display_image(message, id)
             else:
-                bot.send_message(message.from_user.id, "Please specify id of the comic. For example: comic 45")
-                #print ("Error: id is missing\n")
+                #bot.send_message(message.chat.id, "Please specify id of the comic. For example: comic 45")
+                print ("Error: id is missing\n")
         else:
-            bot.send_message(message.from_user.id, "Invalid command, please use /help to learn more.")
-            #print ("Invalid command, please use /help to learn more."\n")
+            #bot.send_message(message.chat.id, "Invalid command, please use /help to learn more.")
+            print ("Invalid command, please use /help to learn more.\n")
 
 
 # run the bot
